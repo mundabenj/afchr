@@ -92,8 +92,10 @@ class tables{
     <table id="repository" class="table table-striped">
       <thead>
         <tr>
+          <th>Update</th>
           <th>ID</th>
-          <th>Uploaded</th>
+          <th>YOP</th>
+          <th>File Name</th>
           <th>Title</th>
           <th>Author</th>
           <th>Actions</th>
@@ -101,38 +103,48 @@ class tables{
       </thead>
       <tbody>
         <?php
-        $repository = $SQL->select_while("SELECT * FROM repository ORDER BY updated_at DESC");
+        $repository = $SQL->select_while("SELECT * FROM repository ORDER BY updated_at ASC");
         if($repository) {
           foreach($repository as $index => $item) {
 ?>
             <tr>
+              <td><?php echo $item['updated_at']; ?></td>
               <td><?php echo $item['Id']; ?></td>
-              <td><?php echo date('Y-m-d', strtotime($item['updated_at'])); ?></td>
-              <td><?php 
+              <td><?php echo $item['Year_of_pub']; ?></td>
+              <td><label for="select_<?php echo $item['Id']; ?>" title="<?php echo htmlspecialchars($item['FileName']); ?>"><?php echo substr($item['FileName'], 0, 20) . '...'; ?></label></td>
+              <td>
+                <input type="checkbox" id="select_<?php echo $item['Id']; ?>" name="RepoId[]" value="<?php echo $item['Id']; ?>">
+                
+                <?php 
               // short string for title
               if(!empty($item['Title'])) {
                  if(strlen($item['Title']) > 50){
-                    echo substr($item['Title'], 0, 50) . '...';
+                    $item_title = substr($item['Title'], 0, 50) . '...';
                  } else {
-                    echo $item['Title'];
+                    $item_title = $item['Title'];
                  }
               } else {
-                  echo 'Untitled';
+                  $item_title = 'Untitled';
                 }
+              echo '<label for="select_' . $item['Id'] . '">' . $item_title . '</label>';
               ?></td> 
               <td><?php 
               // short string for author
 
              if(!empty($item['Author'])) {
                if( strlen($item['Author']) > 50){
-                  echo substr($item['Author'], 0, 50) . '...';
+                $real_author = substr($item['Author'], 0, 50) . '...';
                } else {
-                  echo $item['Author'];
+                  $real_author = $item['Author'];
                }
              } else {
-                 echo 'Unknown';
+                 $real_author = 'Unknown';
                }
-              ?></td>
+
+        if(file_exists('repository_files/'.$item['Folder'].'/'.$item['FileName'])) { ?>
+        <a href="repository_files/<?php echo $item['Folder'].'/'.$item['FileName']; ?>" class="link" target="_blank"><?php print $real_author; ?></a>
+        <?php }else{ echo '<label for="select_' . $item['Id'] . '">' . $real_author . '</label>'; } ?>
+              </td>
               <td>
                 <a href="edit_file_meta.php?id=<?php echo $item['Id']; ?>" class="btn btn-sm btn-primary">Edit</a>
               </td>

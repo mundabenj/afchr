@@ -7,6 +7,9 @@ database/groups/*
 # Ignore a specific file
 conf.php
 
+# Ignore all repository files and folders
+repository_files/*
+
 # Ignore all files in a folder except one
 # temp/*
 # !temp/keep.txt

@@ -44,6 +44,7 @@ $ObjAuth->signin();
 
 // Repository processes
 $ObjRepoProc->update_file_meta();
+$ObjRepoProc->edit_folder();
 
 // Signout process
 $ObjAuth->signout();

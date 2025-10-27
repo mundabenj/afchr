@@ -20,18 +20,20 @@ $cleaned = trim($cleaned);
 
       if(isset($_POST['update_file_meta'])){
         $repoId = $SQL->escape_values($_POST['repoId']);
-        $FileName = $SQL->escape_values($_POST['FileName']);
-        $Title = $SQL->escape_values($_POST['Title']);
-        $Author = $SQL->escape_values($_POST['Author']);
-        $CreationDate = $SQL->escape_values($_POST['CreationDate']);
-        $ModDate = $SQL->escape_values($_POST['ModDate']);
+        $Title = $SQL->escape_values(ucwords(strtolower($_POST['Title'])));
+        $Author = $SQL->escape_values(ucwords(strtolower($_POST['Author'])));
+        $Abstract = $SQL->escape_values($_POST['Abstract']);
+        $Publisher = $SQL->escape_values(ucwords(strtolower($_POST['Publisher'])));
+        $Folder = $SQL->escape_values($_POST['Folder']);
+        $Year_of_pub = $SQL->escape_values($_POST['Year_of_pub']);
 
         $item_data = array(
-            'FileName' => $this->clean_string($FileName),
             'Title' => $this->clean_string($Title),
             'Author' => $this->clean_string($Author),
-            'CreationDate' => $this->clean_string($CreationDate),
-            'ModDate' => $this->clean_string($ModDate)
+            'Abstract' => $this->clean_string($Abstract),
+            'Publisher' => $this->clean_string($Publisher),
+            'Folder' => $this->clean_string($Folder),
+            'Year_of_pub' => $this->clean_string($Year_of_pub)
         );
         
         $where = array(
@@ -41,9 +43,37 @@ $cleaned = trim($cleaned);
         if($update){
           header("Location: edit_file_meta.php?id=" . $repoId . "&status=success");
         } else {
-          header("Location: repository.php?id=" . $repoId . "&status=error");
+          header("Location: edit_file_meta.php?id=" . $repoId . "&status=error");
         }
 
       }
     }
+
+    public function edit_folder() {
+      global $SQL, $ObjFncs;
+
+      if(isset($_POST['update_folder'])){
+        if(!empty($_SESSION['RepoId']) && is_array($_SESSION['RepoId'])) {
+            $folderName = $SQL->escape_values($_POST['folderName']);
+            $cleaned_folder_name = $this->clean_string($folderName);
+
+            foreach($_SESSION['RepoId'] as $repoId) {
+                $repoId = $SQL->escape_values($repoId);
+                $item_data = array(
+                    'Folder' => $cleaned_folder_name
+                );
+                
+                $where = array(
+                    'Id' => $repoId
+                );
+                $update = $SQL->update('repository', $item_data, $where);
+            }
+            // die($update);
+            header("Location: repository.php?status=success");
+        } else {
+            header("Location: repository.php?status=error");
+        }
+      }
+
     }
+}

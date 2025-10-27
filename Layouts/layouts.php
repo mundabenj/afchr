@@ -83,22 +83,39 @@ public function content() {
             </div>
         <?php
     }
+
+    public function read_file() {
+         global $conf, $ObjForm, $ObjFncs, $SQL;
+        ?>
+            <div class="row align-items-md-stretch">
+               <div class="col-md-12">
+                  <div class="h-100 p-5 bg-body-tertiary border rounded-3">
+                     <h4>File Preview <?php echo $_GET['id']; ?></h4>
+            <?php if (isset($_GET['id'])) {
+                  $repoId = $SQL->escape_values($_GET['id']);
+                  $repo = $SQL->select(sprintf("SELECT * FROM repository WHERE Id = '%d' LIMIT 1", $repoId)); ?>
+                  <embed src="repository_files/<?php echo $repo['Folder'].'/'.$repo['FileName']; ?>" type="application/pdf" width="100%" height="600px" />
+                  <?php } else { echo '<div class="alert alert-danger">No file specified.</div>'; } ?>
+               </div>
+            </div>
+        <?php
+    }
     public function form_content() {
          global $conf, $ObjForm, $ObjFncs;
         ?>
             <div class="row align-items-md-stretch">
-            <?php if(basename($_SERVER['PHP_SELF']) == 'edit_file_meta.php')  { ?>
+            <?php if(basename($_SERVER['PHP_SELF']) == 'edit_file_meta.php' || basename($_SERVER['PHP_SELF']) == 'add_folder.php') { ?>
                <div class="col-md-12">
             <?php } else { ?>
                   <div class="col-md-6">
                <?php } ?>  
               
                <div class="h-100 p-5 text-bg-dark rounded-3">
-                     <?php if(basename($_SERVER['PHP_SELF']) == 'signup.php') {$ObjForm->signup(); } elseif(basename($_SERVER['PHP_SELF']) == 'signin.php') {$ObjForm->signin(); } elseif(basename($_SERVER['PHP_SELF']) == 'verify_code.php') {$ObjForm->verify_code(); } elseif(basename($_SERVER['PHP_SELF']) == 'forgot_password.php')  {$ObjForm->forgot_password(); } elseif(basename($_SERVER['PHP_SELF']) == 'change_password.php')  {$ObjForm->change_password(); } elseif(basename($_SERVER['PHP_SELF']) == 'edit_file_meta.php')  {$ObjForm->edit_file_meta(); } ?>
+                     <?php if(basename($_SERVER['PHP_SELF']) == 'signup.php') {$ObjForm->signup(); } elseif(basename($_SERVER['PHP_SELF']) == 'signin.php') {$ObjForm->signin(); } elseif(basename($_SERVER['PHP_SELF']) == 'verify_code.php') {$ObjForm->verify_code(); } elseif(basename($_SERVER['PHP_SELF']) == 'forgot_password.php')  {$ObjForm->forgot_password(); } elseif(basename($_SERVER['PHP_SELF']) == 'change_password.php')  {$ObjForm->change_password(); } elseif(basename($_SERVER['PHP_SELF']) == 'edit_file_meta.php')  {$ObjForm->edit_file_meta(); }elseif(basename($_SERVER['PHP_SELF']) == 'add_folder.php')  {$ObjForm->add_folder_form();} ?>
                   </div>
                </div>
 
-         <?php if(basename($_SERVER['PHP_SELF']) != 'edit_file_meta.php') { ?>
+         <?php if(basename($_SERVER['PHP_SELF']) != 'edit_file_meta.php' && basename($_SERVER['PHP_SELF']) != 'add_folder.php') { ?>
                <div class="col-md-6">
                   <div class="h-100 p-5 bg-body-tertiary border rounded-3">
                      <h2>Add borders</h2>
@@ -117,7 +134,14 @@ public function content() {
             <div class="row align-items-md-stretch">
                <div class="col-md-12">
                   <div class="h-100 p-1 text-bg-light rounded-3">
-                     <?php if(basename($_SERVER['PHP_SELF']) == 'users.php')  {$ObjTable->users_table(); } elseif(basename($_SERVER['PHP_SELF']) == 'people.php')  {$ObjTable->people_table(); } elseif(basename($_SERVER['PHP_SELF']) == 'repository.php')  {$ObjTable->repository_table(); } ?> 
+                     <?php if(basename($_SERVER['PHP_SELF']) == 'users.php')  {$ObjTable->users_table(); } elseif(basename($_SERVER['PHP_SELF']) == 'people.php')  {$ObjTable->people_table(); } elseif(basename($_SERVER['PHP_SELF']) == 'repository.php')  { 
+                        ?>
+                        <form method="post" action="add_folder.php">
+                           <?php $ObjTable->repository_table(); ?>
+                           <button type="submit" name="add_folder" class="btn btn-primary">Add Folder</button>
+                        </form>
+                        <?php
+                        } ?> 
                   </div>
                </div>
             </div>
@@ -189,16 +213,6 @@ public function content() {
             $('#people').DataTable();
         });
         new DataTable('#people', {
-            layout: {
-               topStart: {
-                     buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
-               }
-            }
-         });
-        $(document).ready(function () {
-            $('#repository').DataTable();
-        });
-        new DataTable('#repository', {
             layout: {
                topStart: {
                      buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
